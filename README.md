@@ -44,7 +44,45 @@ The final code for Part 1, combining manual control with network capabilities.
 ### 1. Setup
 Open `WIFIControl.ino` and update the following lines with your network credentials:
 
-```cpp
 const char* ssid = "yourWifiName";
 const char* password = "yourWifiPassword";
 const char* hostName = "device-name";
+
+2. Flashing
+Connect your USB-to-TTL adapter to the Sonoff (TX to RX, RX to TX, GND to GND, 3.3V to 3.3V).
+
+Hold the button on the Sonoff while plugging it in to enter Bootloader Mode.
+
+Select the correct board (e.g., ESP32C3 Dev Module) and port in Arduino IDE.
+
+Upload the sketch.
+
+3. Controlling the Device
+Once uploaded and connected to WiFi, you can control the relay using netcat (nc) from a terminal on the same network.
+
+Commands: ON, OFF, TOGGLE
+
+Example (Linux/Mac Terminal): Replace 192.168.1.XXX with your device's IP address (visible in Serial Monitor on boot).
+
+# Turn ON
+echo -n "ON" | nc 192.168.1.XXX 8081
+
+# Turn OFF
+echo -n "OFF" | nc 192.168.1.XXX 8081
+
+# Toggle state
+echo -n "TOGGLE" | nc 192.168.1.XXX 8081
+
+
+Future Plans
+This is just the beginning (Part 1). Future updates will cover the backend server (Falco) and more advanced integrations.
+
+Disclaimer: Working with mains electricity is dangerous. Ensure all power is disconnected before modifying hardware. Proceed at your own risk.****
+
+
+
+
+
+
+
+
