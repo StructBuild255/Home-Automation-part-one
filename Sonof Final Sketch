@@ -120,7 +120,6 @@ void setup() {
     delay(500);
   }
 
-  // OTA Setupecho -n "ON" | nc 192.168.1.163 80
   ArduinoOTA.setHostname(hostName);
   ArduinoOTA.onStart([]() { outputsOFF(); }); // Safety: Turn off during update
   ArduinoOTA.begin();
