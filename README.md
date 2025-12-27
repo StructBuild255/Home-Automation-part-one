@@ -1,87 +1,90 @@
-# Taking Back Control of Home Automation (Part 1)
+Taking Back Control of Home Automation (Part 1)
+This repository contains the source code for Part 1 of my video series on building a custom, privacy-focused home automation system. The project focuses on reclaiming control from cloud-based smart devices by flashing custom C++ firmware onto a Sonoff Basic R4.
 
-This repository contains the code for Part 1 of my video series on building a custom, privacy-focused home automation system using the Sonoff Basic R4. 
+📺 Watch the full video here: Taking Back Control of Home Automation Pt1
 
-**📺 Watch the full video here:** [Taking Back Control of Home Automation Pt1](https://www.youtube.com/watch?v=V4xDByzqnBk)
+Project Overview
+The goal of this project is to replace proprietary firmware with a custom solution that runs locally on your network. This ensures your devices are not sending telemetry to external servers and allows for integration with custom backends (like the Falco system referenced in the code).
 
-## Project Overview
+Hardware Required
+Sonoff Basic R4 (Powered by ESP32-C3)
 
-The goal of this project is to replace proprietary, cloud-dependent firmware with custom C++ code running on the ESP32-based Sonoff Basic R4. This allows for local control over your devices without sending telemetry data to external servers.
+USB-to-TTL Serial Adapter (Must use 3.3V logic)
 
-### Hardware Required
-* **Sonoff Basic R4** (ESP32-C3 based)
-* **USB-to-TTL Serial Adapter** (3.3V logic) for initial flashing
-* Soldering iron and headers (for accessing programming pins)
+Soldering Tools (For attaching header pins to the Sonoff board)
 
-### Software Requirements
-* **Arduino IDE**
-* **ESP32 Board Manager** installed in Arduino IDE (`esp32` by Espressif Systems)
+Software Requirements
+Arduino IDE
 
-## File Descriptions
+ESP32 Board Manager (Install esp32 by Espressif Systems in Arduino IDE)
 
-This repository progresses from a basic "Hello World" equivalent to a fully network-controlled switch.
+File Descriptions
+The repository includes three sketches that progress from basic functionality to full network control:
 
-### 1. `BlinkWithoutDelay.ino`
-A basic introduction to non-blocking code.
-* **Function:** Toggles the Relay and LED every 500ms using `millis()` instead of `delay()`.
-* **Purpose:** Establishes the foundation for multitasking, allowing the processor to do other things (like listen for WiFi or buttons) while timing the LED.
+1. BlinkWithoutDelay.ino
+A foundational sketch that demonstrates non-blocking timing.
 
-### 2. `ButtonControlWithDebounce.ino`
+Functionality: Toggles the Relay and LED every 500ms.
+
+Key Concept: Uses millis() instead of delay() to allow the processor to handle other tasks simultaneously.
+
+2. ButtonControlWithDebounce.ino
 Adds physical interaction to the device.
-* **Function:** Allows the onboard push button to toggle the Relay/LED.
-* **Features:** Implements software debouncing to prevent false triggers and noisy signals from the mechanical button.
 
-### 3. `WIFIControl.ino`
-The final code for Part 1, combining manual control with network capabilities.
-* **Function:** Connects the device to your local WiFi network.
-* **Features:**
-    * **TCP Server:** Listens on port **8081** for commands.
-    * **OTA (Over-The-Air) Updates:** Allows you to upload new code wirelessly without plugging in the USB adapter again.
-    * **Physical Control:** Retains the button functionality from the previous sketch.
+Functionality: Allows the onboard button (Pin 9) to toggle the Relay/LED.
 
-## Configuration & Usage
+Key Concept: Implements software debouncing to ensure clean signal readings from the physical button.
 
-### 1. Setup
-Open `WIFIControl.ino` and update the following lines with your network credentials:
+3. WIFIControl.ino
+The complete firmware for Part 1, combining manual control with network capabilities.
 
-const char* ssid = "yourWifiName";
-const char* password = "yourWifiPassword";
-const char* hostName = "device-name";
+Network Capabilities: Connects to WiFi and starts a TCP server on port 8081.
 
-2. Flashing
-Connect your USB-to-TTL adapter to the Sonoff (TX to RX, RX to TX, GND to GND, 3.3V to 3.3V).
+OTA Updates: Includes ArduinoOTA to allow for wireless firmware updates in the future.
 
-Hold the button on the Sonoff while plugging it in to enter Bootloader Mode.
+Dual Control: The device can be controlled via the physical button or network commands.
 
-Select the correct board (e.g., ESP32C3 Dev Module) and port in Arduino IDE.
+Setup & Configuration
+Prepare the Hardware:
 
-Upload the sketch.
+Solder header pins to the Sonoff Basic R4.
 
-3. Controlling the Device
-Once uploaded and connected to WiFi, you can control the relay using netcat (nc) from a terminal on the same network.
+Connect the USB-to-TTL adapter (RX to TX, TX to RX, 3.3V to 3.3V, GND to GND).
 
-Commands: ON, OFF, TOGGLE
+Configure the Code:
 
-Example (Linux/Mac Terminal): Replace 192.168.1.XXX with your device's IP address (visible in Serial Monitor on boot).
+Open WIFIControl.ino.
 
-# Turn ON
-echo -n "ON" | nc 192.168.1.XXX 8081
+Update the ssid and password variables with your network credentials.
 
-# Turn OFF
-echo -n "OFF" | nc 192.168.1.XXX 8081
+(Optional) Set a unique hostName for the device.
 
-# Toggle state
+Flash the Firmware:
+
+Hold the physical button on the Sonoff while plugging it into your computer to enter Bootloader Mode.
+
+Select the ESP32C3 Dev Module in Arduino IDE and upload the sketch.
+
+Usage
+Once flashed and connected to your network, you can control the relay using netcat (nc) or any TCP client. The server listens on port 8081.
+
+Supported Commands:
+
+ON - Turns the relay on.
+
+OFF - Turns the relay off.
+
+TOGGLE - Toggles the current state.
+
+Example Terminal Command:
+
+Bash
+
+# Replace 192.168.1.XXX with your device's IP address
 echo -n "TOGGLE" | nc 192.168.1.XXX 8081
+Note: The code includes a placeholder comment for integration with "Falco commands," hinting at the backend server integration to come in future videos.
 
-
-Future Plans
-This is just the beginning (Part 1). Future updates will cover the backend server (Falco) and more advanced integrations.
-
-Disclaimer: Working with mains electricity is dangerous. Ensure all power is disconnected before modifying hardware. Proceed at your own risk.****
-
-
-
-
+Disclaimer: Working with mains electricity is dangerous. Ensure the device is unplugged from mains power while flashing or modifying hardware.
 
 
 
