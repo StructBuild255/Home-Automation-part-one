@@ -1,0 +1,81 @@
+//===================================================================================
+// INCLUDES
+//=================================================================================== 
+  #include <Arduino.h>
+
+//===================================================================================
+// DEFINES
+//=================================================================================== 
+  #define RELAY_PIN 4
+  #define LED_PIN 6
+  #define BUTTON_PIN 9
+  #define ON HIGH
+  #define OFF LOW
+
+//===================================================================================
+// GLOBALS
+//=================================================================================== 
+  bool relayState = false;
+  int lastButtonState = HIGH;
+  uint32_t lastDebounceTime = 0;
+  uint32_t debounceDelay = 50;
+
+//===================================================================================
+// FUNCTIONS
+//=================================================================================== 
+  void outputsON(){
+    digitalWrite(RELAY_PIN,ON);
+    digitalWrite(LED_PIN,ON);
+    relayState = true;
+  }
+
+  void outputsOFF(){
+    digitalWrite(RELAY_PIN,OFF);
+    digitalWrite(LED_PIN,OFF);
+    relayState = false;
+  }
+
+  void toggle(){
+    if (relayState) outputsOFF();
+    else outputsON();
+  }
+
+//===================================================================================
+// SETUP
+//=================================================================================== 
+  void setup() {
+    pinMode(RELAY_PIN, OUTPUT);
+    pinMode(LED_PIN, OUTPUT);
+    pinMode(BUTTON_PIN, INPUT_PULLUP);
+    
+    outputsOFF();
+  }
+
+//===================================================================================
+// LOOP
+//=================================================================================== 
+  void loop() {
+    int reading = digitalRead(BUTTON_PIN);
+
+
+    if (reading != lastButtonState) {
+      lastDebounceTime = millis();
+    }
+
+
+    if ((millis() - lastDebounceTime) > debounceDelay) {
+
+      static int buttonState = HIGH; 
+      
+      if (reading != buttonState) {
+        buttonState = reading;
+        if (buttonState == LOW) {
+          toggle();
+        }
+      }
+    }
+
+    lastButtonState = reading;
+  }
+
+
