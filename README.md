@@ -16,6 +16,7 @@ The goal of this project is to replace proprietary, cloud-dependent firmware wit
 ### Software Requirements
 * **Arduino IDE**
 * **ESP32 Board Manager** installed in Arduino IDE (`esp32` by Espressif Systems)
+* https://espressif.github.io/arduino-esp32/package_esp32_index.json
 
 ## File Descriptions
 
