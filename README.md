@@ -66,13 +66,13 @@ Example (Linux/Mac Terminal): Replace 192.168.1.XXX with your device's IP addres
 
 Bash
 
-# Turn ON
+### Turn ON
 echo -n "ON" | nc 192.168.1.XXX 8081
 
-# Turn OFF
+### Turn OFF
 echo -n "OFF" | nc 192.168.1.XXX 8081
 
-# Toggle state
+### Toggle state
 echo -n "TOGGLE" | nc 192.168.1.XXX 8081
 Future Plans
 This is just the beginning (Part 1). Future updates will cover the backend server (Falco) and more advanced integrations.
