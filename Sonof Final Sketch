@@ -1,0 +1,139 @@
+#include <Arduino.h>
+#include <WiFi.h>
+#include <ESPmDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
+
+//=============================================================================
+// DEFINES
+//=============================================================================
+#define RELAY_PIN 4
+#define LED_PIN 6
+#define BUTTON_PIN 9
+
+// ACTIVE HIGH CONFIGURATION
+#define LED_ON      HIGH
+#define LED_OFF     LOW
+#define RELAY_ON    HIGH
+#define RELAY_OFF   LOW
+
+//=============================================================================
+// NETWORK CREDENTIALS
+//=============================================================================
+const char* ssid = "yourWifiName"; // Do not show this to anyone you dont want them to know.
+const char* password = "yourWifiPassword"; //Do not show this to anyone
+const char* hostName = "the name of your divice"; 
+
+WiFiServer server(8081); 
+
+//=============================================================================
+// GLOBALS
+//=============================================================================
+bool relayState = false;
+int lastButtonState = HIGH;
+uint32_t lastDebounceTime = 0;
+uint32_t debounceDelay = 50;
+
+//=============================================================================
+// FUNCTIONS
+//=============================================================================
+void outputsON(){
+  digitalWrite(RELAY_PIN, RELAY_ON);
+  digitalWrite(LED_PIN, LED_ON);
+  relayState = true;
+}
+
+void outputsOFF(){
+  digitalWrite(RELAY_PIN, RELAY_OFF);
+  digitalWrite(LED_PIN, LED_OFF);
+  relayState = false;
+}
+
+void toggle(){
+  if (relayState) outputsOFF();
+  else outputsON();
+}
+
+void handleButton() {
+  int reading = digitalRead(BUTTON_PIN);
+  if (reading != lastButtonState) lastDebounceTime = millis();
+  
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    static int buttonState = HIGH;
+    if (reading != buttonState) {
+      buttonState = reading;
+      // Button is still Active Low (connects to Ground)
+      if (buttonState == LOW) toggle();
+    }
+  }
+  lastButtonState = reading;
+}
+
+void handleNetwork() {
+  WiFiClient client = server.available(); 
+
+  if (client) {
+    unsigned long timeout = millis() + 2000; 
+    while (!client.available() && millis() < timeout) {
+      delay(1); 
+    }
+
+    if (client.available()) {
+
+      String request = client.readStringUntil('\n');
+      request.trim();
+
+      Serial.print("Received: ");
+      Serial.println(request);
+
+      if (request == "ON") outputsON();
+      else if (request == "OFF") outputsOFF();
+      else if (request == "TOGGLE") toggle();
+      
+      if (relayState) client.println("ON");
+      else client.println("OFF");
+    }
+    
+    client.stop(); 
+    Serial.println("Client Disconnected");
+  }
+}
+
+
+//=============================================================================
+// SETUP
+//=============================================================================
+void setup() {
+  Serial.begin(115200);
+  
+  pinMode(RELAY_PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  
+
+  outputsOFF();
+
+  // WiFi Setup
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+  }
+
+  // OTA Setupecho -n "ON" | nc 192.168.1.163 80
+  ArduinoOTA.setHostname(hostName);
+  ArduinoOTA.onStart([]() { outputsOFF(); }); // Safety: Turn off during update
+  ArduinoOTA.begin();
+
+  server.begin();
+}
+
+//=============================================================================
+// LOOP
+//=============================================================================
+void loop() {
+  ArduinoOTA.handle(); // Check for updates
+  handleButton();      // Check physical button
+  handleNetwork();     // Check for Falco commands
+}
+
