@@ -1,0 +1,66 @@
+//=============================================================================
+// INCLUDES
+//=============================================================================
+#include <Arduino.h>
+
+//=============================================================================
+// DEFINES
+//=============================================================================
+#define RELAY_PIN 4
+#define LED_PIN 6
+#define BUTTON_PIN 9
+#define ON HIGH
+#define OFF LOW
+
+
+
+//=============================================================================
+// GLOBALS
+//=============================================================================
+uint32_t currentTime = 0;
+uint32_t previousTime = 0;
+bool relayState = false;
+
+//=============================================================================
+// FUNCTIONS
+//=============================================================================
+  void outputsON(){
+    digitalWrite(RELAY_PIN,ON);
+    digitalWrite(LED_PIN,ON);
+    relayState = true;
+  }
+
+  void outputsOFF(){
+    digitalWrite(RELAY_PIN,OFF);
+    digitalWrite(LED_PIN,OFF);
+    relayState = false;
+  }
+
+  void toggle(){
+    if (relayState) outputsOFF();
+    else outputsON();
+  }
+
+//=============================================================================
+// SETUP
+//=============================================================================
+  void setup() {
+    pinMode(RELAY_PIN, OUTPUT);
+    pinMode(LED_PIN, OUTPUT);
+    
+    // Start OFF
+    outputsOFF();
+  }
+
+//=============================================================================
+// LOOP
+//=============================================================================
+  void loop() {
+    currentTime = millis();
+
+    if(currentTime - previousTime > 500){
+      toggle();
+      previousTime = currentTime;
+    }
+  }
+
